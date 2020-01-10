@@ -1,0 +1,31 @@
+package GameCore.States;
+import GameCore.Handler;
+import GameCore.gfx.Assets;
+
+import java.awt.Rectangle;
+import java.awt.Graphics;
+
+public class IntroState extends State {
+
+ private Rectangle bounds;
+
+ public IntroState(Handler handler) {
+  super(handler);
+  bounds = new Rectangle(440, 630, 256, 128);
+
+ }
+
+ @Override
+ public void tick() {
+   if(handler.getMouseManager().isLeftPressed() && bounds.contains(handler.getMouseManager().getMouseX(), handler.getMouseManager().getMouseY())){
+     State.setState(handler.getGame().selectionState);
+   }
+ }
+
+ @Override
+ public void render(Graphics g) {
+  g.drawImage(Assets.introscreen, 0, 0, null);
+  g.drawImage(Assets.btn_start[0], 440, 630, 256, 128, null);
+ }
+
+}

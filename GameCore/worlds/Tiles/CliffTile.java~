@@ -1,0 +1,16 @@
+package GameCore.worlds.Tiles;
+
+import GameCore.gfx.Assets;
+
+public class CliffTile extends Tile {
+  
+  public CliffTile (int id) {
+   super (Assets.rock, id); 
+  }
+  
+  @Override
+  public boolean isSolid () {
+    return true;
+  }
+  
+}

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<drjava version="drjava-20160913-225446">
+  <project autorefresh="false" build="" main="GameCore.Launcher" manifest="" root="" work="">
+    <createjar file="FF2dr.jar" flags="15"/>
+    <source>
+      <file active="true" name="GameCore/heroes/Lauda.java" package="GameCore.heroes" timestamp="03-May-2019 13:21:38">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Allistar.java" package="GameCore.heroes" timestamp="07-May-2019 14:35:34">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Player.java" package="GameCore.heroes" timestamp="02-Jun-2019 21:26:24">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/ImageLoader.java" package="GameCore.gfx" timestamp="01-Jan-2018 15:02:50">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/AudioPlayer.java" package="GameCore.gfx" timestamp="11-Feb-2018 14:29:56">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/SelectionState.java" package="GameCore.States" timestamp="12-Mar-2018 19:17:14">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Bridge3.java" package="GameCore.worlds.Tiles" timestamp="04-Oct-2017 20:18:34">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/IntroState.java" package="GameCore.States" timestamp="05-Jan-2018 11:57:24">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/Utils.java" package="GameCore.gfx" timestamp="01-Jan-2018 15:19:12">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/PlainTile.java" package="GameCore.worlds.Tiles" timestamp="02-Jun-2017 19:43:34">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Plaintile2.java" package="GameCore.worlds.Tiles" timestamp="02-Jun-2017 19:43:34">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/BoulderTile.java" package="GameCore.worlds.Tiles" timestamp="28-Jun-2017 17:16:22">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Cloud3.java" package="GameCore.worlds.Tiles" timestamp="28-Sep-2017 21:57:22">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Cloud.java" package="GameCore.worlds.Tiles" timestamp="28-Sep-2017 22:01:16">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Cloud2.java" package="GameCore.worlds.Tiles" timestamp="28-Sep-2017 22:01:16">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/State.java" package="GameCore.States" timestamp="02-May-2019 20:10:12">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Bridge1.java" package="GameCore.worlds.Tiles" timestamp="04-Oct-2017 19:54:10">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Sky.java" package="GameCore.worlds.Tiles" timestamp="05-Oct-2017 09:58:16">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/Handler.java" package="GameCore" timestamp="09-Nov-2017 19:23:36">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/SpriteSheet.java" package="GameCore.gfx" timestamp="19-Nov-2017 10:38:28">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/World.java" package="GameCore.worlds" timestamp="09-Nov-2017 20:28:22">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/managers/KeyManager.java" package="GameCore.managers" timestamp="09-Nov-2017 20:32:36">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/CliffTile2.java" package="GameCore.worlds.Tiles" timestamp="09-Nov-2017 20:14:02">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/CliffTile.java" package="GameCore.worlds.Tiles" timestamp="09-Nov-2017 20:14:02">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Grass.java" package="GameCore.worlds.Tiles" timestamp="09-Nov-2017 20:35:02">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Tile.java" package="GameCore.worlds.Tiles" timestamp="09-Nov-2017 20:36:04">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Path.java" package="GameCore.worlds.Tiles" timestamp="09-Nov-2017 20:41:36">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/managers/MouseManager.java" package="GameCore.managers" timestamp="10-Nov-2017 09:09:36">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/Animation.java" package="GameCore.gfx" timestamp="11-Mar-2018 14:07:44">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Water.java" package="GameCore.worlds.Tiles" timestamp="14-Nov-2017 09:44:10">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/LakeTile.java" package="GameCore.worlds.Tiles" timestamp="14-Nov-2017 09:45:56">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/Sprites.java" package="GameCore.gfx" timestamp="17-Nov-2017 18:49:10">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/SoundLoader.java" package="GameCore.gfx" timestamp="02-Jan-2018 17:50:02">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/Game.java" package="GameCore" timestamp="05-Jan-2018 15:02:34">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Bridge4.java" package="GameCore.worlds.Tiles" timestamp="31-Jan-2018 08:22:32">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/worlds/Tiles/Bridge2.java" package="GameCore.worlds.Tiles" timestamp="31-Jan-2018 08:22:32">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/Tree.java" package="GameCore.entities" timestamp="09-Feb-2018 22:55:22">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/Display.java" package="GameCore.gfx" timestamp="19-Nov-2017 14:39:08">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/Launcher.java" package="GameCore" timestamp="31-Dec-2017 22:41:08">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/MenuState.java" package="GameCore.States" timestamp="08-Mar-2018 08:51:48">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/Mine.java" package="GameCore.entities" timestamp="07-Apr-2018 17:13:48">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/GameState.java" package="GameCore.States" timestamp="08-Mar-2018 09:32:46">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/managers/EntityManager.java" package="GameCore.managers" timestamp="11-Mar-2018 19:11:12">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/EndState.java" package="GameCore.States" timestamp="08-Mar-2018 09:48:24">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/HealingCrystal.java" package="GameCore.entities" timestamp="04-Apr-2018 09:48:04">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/Angel.java" package="GameCore.entities" timestamp="06-Apr-2018 23:38:36">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/States/StageState.java" package="GameCore.States" timestamp="03-May-2019 17:23:30">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Projectile.java" package="GameCore.heroes" timestamp="12-Apr-2018 10:41:20">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/TaFiRah.java" package="GameCore.heroes" timestamp="03-May-2019 13:21:14">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/gfx/Assets.java" package="GameCore.gfx" timestamp="03-May-2019 17:30:12">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Alta.java" package="GameCore.heroes" timestamp="03-May-2019 13:54:48">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Grayson.java" package="GameCore.heroes" timestamp="07-May-2019 15:09:56">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/Entity.java" package="GameCore.entities" timestamp="03-May-2019 12:55:32">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/StaticEntity.java" package="GameCore.entities" timestamp="02-May-2019 10:35:22">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/entities/LiveEntity.java" package="GameCore.entities" timestamp="02-May-2019 10:35:26">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Luxaar.java" package="GameCore.heroes" timestamp="03-May-2019 13:18:02">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/IronFiend.java" package="GameCore.heroes" timestamp="04-May-2019 16:33:24">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+      <file name="GameCore/heroes/Sephira.java" package="GameCore.heroes" timestamp="07-Aug-2019 14:17:52">
+        <select from="12806" to="12806"/>
+        <scroll column="11676" row="0"/>
+      </file>
+    </source>
+    <included/>
+    <excluded/>
+    <collapsed/>
+    <classpath>
+      <file absolute="false" name="res/"/>
+      <file absolute="false" name="res/textures/"/>
+      <file absolute="false" name="settings"/>
+      <file absolute="false" name="GameCore/gfx/"/>
+      <file absolute="false" name="GameCore/States/"/>
+      <file absolute="false" name="res/seph/"/>
+      <file absolute="false" name="GameCore/heroes/"/>
+      <file absolute="false" name="GameCore/entities/"/>
+    </classpath>
+    <breakpoints/>
+    <watches/>
+    <bookmarks/>
+    <preferences/>
+  </project>
+</drjava>

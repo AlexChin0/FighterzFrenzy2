@@ -1,0 +1,13 @@
+//Extension of the tile class. It is a boulder tile.
+
+package GameCore.worlds.Tiles;
+
+import GameCore.gfx.Assets;
+
+public class Cloud2 extends Tile {
+  
+  public Cloud2 (int id) {
+   super (Assets.cloud2, id); 
+  }
+  
+}

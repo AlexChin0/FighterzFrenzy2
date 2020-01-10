@@ -1,0 +1,567 @@
+//Grayson is a playable character in the game. This class keeps track of the characters hp, abilities, attacks, and graphics. 
+// It is an extension of the Player class.
+
+package GameCore.heroes;
+
+import GameCore.*;
+import GameCore.States.GameState;
+import GameCore.gfx.*;
+
+import java.awt.*;
+import java.awt.image.*;
+import java.util.*;
+
+public class Grayson extends Player{
+  
+  public Animation neutral, neutral2, left, right, down, up, attackLight, attackLight2, attackHeavy, attackHeavy2, shieldCast, shieldCast2, shieldCharge, shieldCharge2, runeShard, runeShard2, ultiCast, ultiCast2, runeBomb, flinch, flinch2, stunned, stunned2;
+  
+  private boolean protect = false, shard = false, unleash = false, detonate = false, charge = false;
+  private int leapRange = 198, leapDmg = 90, shieldDmg = 30;
+  private int runeForce = 0, runeCharge = 0;
+  private ArrayList<Long> runeTick = new ArrayList<Long>();
+  
+  private AudioPlayer shieldHit, runeSound, ulti, ultiFail, shardCast, shardHit, attack;
+  
+  public Grayson(Handler handler, float x, float y) { 
+    super (handler, x , y, Player.defaultWidth, Player.defaultHeight); 
+    
+    bounds.x = 64;
+    bounds.y = 96; // hit box variables
+    bounds.width = 52;
+    bounds.height = 58;
+    
+    neutral = new Animation (1000, Assets.grayN);
+    neutral2 = new Animation (1000,Assets.grayN2);
+    left = new Animation (100, Assets.grayML);
+    right = new Animation (100, Assets.grayMR);
+    down = new Animation (100, Assets.grayMD); //instances of the animation class
+    up = new Animation (100, Assets.grayMU);
+    
+    attackLight = new Animation (100, Assets.grayLA);
+    attackLight2 = new Animation (100, Assets.grayLA2);
+    attackHeavy = new Animation (100, Assets.grayHA);
+    attackHeavy2 = new Animation (100, Assets.grayHA2);   
+    
+    shieldCast = new Animation (140, Assets.graySS);
+    shieldCast2 = new Animation (140, Assets.graySS2);
+    shieldCharge = new Animation(100, Assets.graySC);
+    shieldCharge2 = new Animation(100, Assets.graySC2);
+    
+    runeShard = new Animation (70, Assets.grayRS);
+    runeShard2 = new Animation (70, Assets.grayRS2);
+    
+    ultiCast = new Animation (130, Assets.grayUC);
+    ultiCast2 = new Animation (130, Assets.grayUC2);
+    
+    flinch = new Animation (100, Assets.grayF);
+    flinch2 = new Animation (100, Assets.grayF2);
+    
+    runeBomb = new Animation (75, Assets.arunLia);
+    
+    stunned = new Animation (200, Assets.grayS);
+    stunned2 = new Animation (200, Assets.grayS2);
+    
+    shieldHit = new AudioPlayer("/se/grayson/shield.wav");
+    runeSound = new AudioPlayer("/se/grayson/ring.wav");
+    ulti = new AudioPlayer("/se/grayson/runebomb.wav");
+    ultiFail = new AudioPlayer("/se/grayson/runehurt.wav");
+    shardCast = new AudioPlayer("/se/grayson/Up1.wav");
+    shardHit = new AudioPlayer("/se/grayson/Battle2.wav");
+    attack = new AudioPlayer("/se/grayson/Evasion1.wav");
+    
+    width = 192;
+    height = 192;
+    
+    health = 600; //hero values
+    maxHealth = 600;
+    healthMod = health / 300;
+    speed = 4.6f;
+    maxSpeed = 4.6f;
+    
+    cooldowns[0] = 5; //5
+    cooldowns[1] = 6; //6
+    cooldowns[2] = 23; //23
+    cooldowns[3] = 1; //1
+    cooldowns[4] = 1; //1
+  }
+
+  @Override //method responsible for incoming damage calculations
+  public void hurt(float amt){
+    if(protect){
+      shieldHit.playSound();
+      runeForce += amt;
+      shieldDmg += amt;
+    }else {
+     hurt.playSound();
+      if(!protect){
+      if(runeForce <= 10){
+        health -= amt;
+      }else if(runeForce > 10){
+        if (amt <= 10){
+          runeForce -= amt;
+        }else{
+          health -= (Math.abs(amt - 10));
+          runeForce -= 10; 
+        }
+      }
+    }
+    }
+    hit = true;
+    System.out.println("Player " + playerNum + " Grayson." + health + " hp.");
+    if (health <= 0){
+      alive = false;
+      die();
+    }
+  }
+  
+    @Override 
+  public void heal(float amt){
+    if (health > maxHealth){
+     health = maxHealth;
+    }else{
+     health += amt; 
+    }
+  }
+
+  @Override
+  public void die(){
+    alive = false; //death method. Removes the entity from the game upon death. 
+    GameState.end = true;
+  }
+  
+  //player movement method
+  public void getInput(){
+  xMove = 0;
+  yMove = 0;
+  
+  if(playerNum == 1){
+    if (handler.getKeyManager().up)
+      yMove = -speed;
+    if (handler.getKeyManager().down)
+      yMove = speed;
+    if (handler.getKeyManager().left)
+      xMove = -speed;
+    if (handler.getKeyManager().right)
+      xMove = speed;   
+  } 
+  if(playerNum == 2){
+    if (handler.getKeyManager().up2)
+      yMove = -speed;
+    if (handler.getKeyManager().down2)
+      yMove = speed;
+    if (handler.getKeyManager().left2)
+      xMove = -speed;
+    if (handler.getKeyManager().right2)
+      xMove = speed; 
+  }
+}
+  
+  //ticks every value for the hero
+  @Override
+  public void tick(){
+    tickCooldowns();   
+    inBounds();
+
+    effectCheck(timeStack, affectedBy); 
+    
+    long toSeconds = abTimer / 1000;
+    if (!runeTick.contains(toSeconds)){
+      runeSound.playSound();
+      runeTick.add(toSeconds);
+      if (runeForce < 300){
+        runeForce+= 5;
+      }else if(runeForce >= 300){
+        runeForce = 300;
+      }
+    }
+    
+    //Animation
+    neutral.tick();
+    neutral2.tick();
+    left.tick();
+    right.tick();
+    up.tick();
+    down.tick();
+    flinch.tick();
+    flinch2.tick();
+    stunned.tick();
+    stunned2.tick();
+    
+    //movement and abilities
+    if (free && !stun){
+      getInput();
+      move();    
+      
+      if (handler.getKeyManager().attackLight && playerNum == 1 && checkCooldowns(3) || handler.getKeyManager().attackLight2 && playerNum == 2 && checkCooldowns(3)){
+        LA = true;
+        free = false;
+        abilities[3] = 0;
+      }
+      if (handler.getKeyManager().attackHeavy && playerNum == 1  && checkCooldowns(4) || handler.getKeyManager().attackHeavy2 && playerNum == 2 && checkCooldowns(4)){
+        HA = true;
+        free = false;
+        abilities[4] = 0;
+      }
+      if (handler.getKeyManager().a1 && checkCooldowns(0) && playerNum == 1 || handler.getKeyManager().a4 && checkCooldowns(0) && playerNum == 2){
+        free = false;
+        protect = true;
+        abilities[0] = 0;
+      }
+      if (handler.getKeyManager().a2 && checkCooldowns(1) && playerNum == 1 || handler.getKeyManager().a5 && checkCooldowns(1) && playerNum == 2){
+        leapDmg = 90;
+        free = false;
+        shard = true;
+        abilities[1] = 0;
+      }
+      if (handler.getKeyManager().a3 && checkCooldowns(2) && playerNum == 1 || handler.getKeyManager().a6 && checkCooldowns(2) && playerNum == 2){
+        free = false;
+        unleash = true;
+        if(runeForce > 20){
+            ulti.playSound();
+          }else if(runeForce <= 20){
+              ultiFail.playSound();
+          }
+        abilities[2] = 0;
+      }
+    }else if (!free){
+      
+    }
+    
+    if (LA){
+      LightAttack(); 
+    }
+    if (HA){
+      HeavyAttack();
+    }
+    if(protect){
+      A1();
+    }
+    if (shard){
+     A2(); 
+    }
+    if(unleash){
+     A3(); 
+    }else if(detonate){
+     runeBomb.tick();
+     
+     if(runeBomb.checkAnim()){
+       free = true;
+       detonate = false;
+       runeCharge = (int)(runeForce * 0.75);
+                  
+         if(runeForce > 20){
+           rangedCheck((int)(x - 125),(int)(y - 200), 600, 600, 100 + runeCharge, 0, 0);
+           runeForce = 0;
+         }else if(runeForce <= 20){
+           health -= health/5;
+           runeForce = 0;
+         }
+         
+     }
+     
+    }    
+    if(hit && flinch.checkAnim()){
+      hit = false; 
+    }
+  }
+  
+  @Override
+  public void LightAttack(){
+    attackLight.tick();  
+    attackLight2.tick();
+    adjust(270, 150);    
+    free = false;
+    
+    if (attackLight.checkAnim()){
+      attack.playSound();
+      LA = false;
+      free = true;
+      reShape(270, 150, 192, 192);
+      if(hitCheck(70, 40, 40)){
+       runeForce += 9; 
+      }
+    }
+    
+    if(stun || silenced){
+      LA = false;
+      attackLight.index = 0;
+      attackLight2.index = 0;
+      return;
+    }     
+  }
+  
+  @Override
+  public void HeavyAttack(){
+    attackHeavy.tick();  
+    attackHeavy2.tick();
+    adjust(270, 150);
+    free = false;
+    
+    if (attackHeavy.checkAnim()){
+      attack.playSound();
+      HA = false;
+      free = true;
+      reShape(270, 150, 192, 192);
+      if(hitCheck(60, 50, 80)){
+       runeForce += 15; 
+      }
+    }
+    
+    if(stun || silenced){
+      HA = false;
+      attackHeavy.index = 0;
+      attackHeavy2.index = 0;
+      return;
+    }     
+  }
+  
+  @Override
+  public void A1(){
+    shieldCast.tick();
+    shieldCast2.tick();
+    adjust (300, 210);
+    
+    if (handler.getKeyManager().a1 && playerNum == 1 && shieldCast.index > 3|| handler.getKeyManager().a4 && playerNum == 2 && shieldCast.index > 3){
+     charge = true;
+     protect = false;
+     shieldCast.index = 0;
+     shieldCast2.index = 0;
+     adjust(330, 210);
+    }
+
+    if(shieldCast.checkAnim()){
+      protect = false;
+      free = true;
+      reShape(300, 210, 192, 192);
+    }   
+    
+  }
+  
+  @Override
+  public void A2(){
+    runeShard.tick();
+    runeShard2.tick();
+    shardCast.playSound();
+    adjust(390, 210);
+    if (handler.getKeyManager().a2 && playerNum == 1 && runeShard.index > 2 || handler.getKeyManager().a5 && playerNum == 2 && runeShard.index > 2){
+      runeForce -= 1;
+      leapDmg += 2;
+      if(runeForce <= 0){
+        shard = false;
+        free = true;
+        runeShard.index = 0;
+        runeShard2.index = 0;
+        reShape(390, 210, 192, 192);
+        hurt(leapDmg / 2);
+        return;
+      }
+    }
+    
+    if(runeShard.checkAnim()){
+      shard = false;
+      free = true;
+      reShape(390, 210, 192, 192);
+      if(dir == 1){
+      x -= leapRange;
+      }else if(dir == 2){
+      x += leapRange;
+      }
+      
+      if(hitCheck(100, 90, leapDmg)){
+       shardHit.playSound();
+      }
+    }
+    
+    if(stun || silenced){
+      shard = false;
+      runeShard.index = 0;
+      runeShard2.index = 0;
+      adjust(192, 192);
+      return;
+    } 
+  }
+  
+  @Override
+  public void A3(){
+    ultiCast.tick();
+    ultiCast2.tick();
+    adjust(240, 240);
+    
+    if(ultiCast.checkAnim()){
+      unleash = false;
+      detonate = true;
+      reShape(240, 240, 192, 192);
+    }
+    
+    if(stun || silenced){
+     ultiCast.index = 0;
+     ultiCast2.index = 0;
+     unleash = false;
+     detonate = false;
+     health -= health/5;
+     adjust(192, 192);
+     return;
+    }
+  }
+  
+  //renders the hero and their abilities
+  @Override
+  public void render (Graphics g){
+//    g.setColor(Color.green);
+//    g.fillRect((int) (x + bounds.x * 3/4), (int)(y + bounds.y / 2), bounds.width * 2, bounds.height * 2); 
+//    g.setColor (Color.red);
+//    g.fillRect ((int) (x + bounds.x), (int)(y + bounds.y), bounds.width, bounds.height); 
+    
+    int pshift = 0;
+    
+    if (playerNum == 2){
+      pshift = 608; 
+    }
+    
+    if(abilities[0] == cooldowns[0]){
+      g.drawImage(Assets.grayAbils[0], 396 + pshift, 782, 32, 32, null);
+    }else{
+      g.drawImage(Assets.grayAbils[1], 396 + pshift, 782, 32, 32, null);
+    }
+    if(abilities[1] == cooldowns[1]){
+      g.drawImage(Assets.grayAbils[2], 464 + pshift, 782, 32, 32, null);      
+    }else{
+      g.drawImage(Assets.grayAbils[3], 464 + pshift, 782, 32, 32, null);
+    }
+    if(abilities[2] == cooldowns[2]){
+      g.drawImage(Assets.grayAbils[4], 530 + pshift, 782, 32, 32, null);
+    }else{
+      g.drawImage(Assets.grayAbils[5], 530 + pshift, 782, 32, 32, null);
+    }
+    
+    if(silenced){
+     g.drawImage(Assets.silenced, 396 + pshift, 782, 32, 32, null);
+     g.drawImage(Assets.silenced, 464 + pshift, 782, 32, 32, null);
+     g.drawImage(Assets.silenced, 530 + pshift, 782, 32, 32, null);
+    }else{
+     
+    }
+ 
+    g.drawImage(getCurrentAnimationFrame(), (int)(x), (int)(y) , width, height, null); 
+       
+    if(detonate && runeForce >= 20){
+     //g.fillRect((int)(x - 200),(int)(y - 125), 600, 600);
+     g.drawImage(runeBomb.getCurrentFrame(), (int) (x - 300), (int) (y - 225), 800, 800,  null); 
+    }    
+    
+    if(charge){
+     shieldCharge.tick();
+     shieldCharge2.tick();
+        if (handler.getKeyManager().a1 && playerNum == 1 && shieldCharge.index >= 2|| handler.getKeyManager().a4 && playerNum == 2 && shieldCharge.index >= 2){
+         shieldDmg += 1;
+         runeForce --;
+            if(runeForce <= 0){
+                charge = false;
+                free = true;
+                shieldCharge.index = 0;
+                shieldCharge2.index = 0;
+                reShape(390, 210, 192, 192);
+                hurt(shieldDmg / 2);
+                return;
+              }
+        }
+     if(shieldCharge.checkAnim()){
+      knockback(100, 70, shieldDmg, 102);
+      if(dir == 1){
+       x -= 118;
+      }else if(dir == 2){
+       x += 118;
+      }
+      shieldDmg = 30;
+      charge = false;
+      adjust(192, 192);
+      free = true;
+     }
+    }
+    
+    if(playerNum == 1){
+      g.setColor(Color.blue);
+      g.fillRect (44, 804, runeForce, 8); 
+    }
+    if(playerNum == 2){
+      g.setColor(Color.blue);
+      g.fillRect (652, 804, runeForce, 8); 
+    }
+  }
+  
+  private BufferedImage getCurrentAnimationFrame(){ //decides which animation to tick to the screen
+      if(stun && dir == 1){
+      return stunned.getCurrentFrame();
+    }else if(stun && dir == 2){
+      return stunned2.getCurrentFrame();      
+    }
+    
+    // attacks
+    else if (!attackLight.checkAnim() && LA && dir == 1){
+      return attackLight.getCurrentFrame();
+    }else if (!attackLight.checkAnim() && LA && dir == 2){
+      return attackLight2.getCurrentFrame();
+    }else if (!attackHeavy.checkAnim() && HA && dir == 1){
+      return attackHeavy.getCurrentFrame();
+    }else if (!attackHeavy.checkAnim() && HA && dir == 2){
+      return attackHeavy2.getCurrentFrame();
+    }
+    
+    //abilities
+      
+    else if(!shieldCharge.checkAnim() && charge && dir == 1){
+     return shieldCharge2.getCurrentFrame();
+    }else if(!shieldCharge.checkAnim() && charge && dir == 2){
+     return shieldCharge.getCurrentFrame();
+    }
+    
+    //shield
+    else if(!shieldCast.checkAnim() && protect && !charge && dir == 1){
+      return shieldCast.getCurrentFrame();
+    }else if(!shieldCast.checkAnim() && protect && !charge && dir == 2){
+      return shieldCast2.getCurrentFrame();
+    }
+    
+    //runeshard
+    else if(!runeShard.checkAnim() && shard && dir == 1){
+      return runeShard.getCurrentFrame();
+    }else if(!runeShard.checkAnim() && shard && dir == 2){
+      return runeShard2.getCurrentFrame();
+    }
+    
+    //ulti
+    else if(!ultiCast.checkAnim() && unleash && dir == 1){
+      return ultiCast.getCurrentFrame();
+    }else if(!ultiCast.checkAnim() && unleash && dir == 2){
+     return ultiCast2.getCurrentFrame(); 
+    }
+    
+    else if(hit && dir == 1){
+      return flinch.getCurrentFrame();
+    }else if(hit && dir == 2){
+     return flinch2.getCurrentFrame(); 
+    }
+    
+    // movement
+    else if (handler.getKeyManager().left && playerNum == 1 || handler.getKeyManager().left2 && playerNum == 2){
+      dir = 1;
+      return left.getCurrentFrame(); 
+    }else if (handler.getKeyManager().right && playerNum == 1 || handler.getKeyManager().right2 && playerNum == 2){
+      dir = 2;
+      return right.getCurrentFrame();
+    }else if (handler.getKeyManager().down && playerNum == 1 || handler.getKeyManager().down2 && playerNum == 2){
+      return down.getCurrentFrame();
+    }else if (handler.getKeyManager().up && playerNum == 1 || handler.getKeyManager().up2 && playerNum == 2){
+      return up.getCurrentFrame();
+    }else if (dir == 2){
+      return neutral2.getCurrentFrame(); 
+    }
+    else
+      return neutral.getCurrentFrame();
+  }
+  
+  public int getRunes(){
+    return runeForce;
+  }
+  
+}

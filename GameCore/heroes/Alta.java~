@@ -1,0 +1,731 @@
+package GameCore.heroes;
+
+import GameCore.*;
+import GameCore.States.GameState;
+import GameCore.entities.Entity;
+import GameCore.gfx.*;
+
+import java.awt.*;
+import java.awt.image.*;
+import java.util.ArrayList;
+
+public class Alta extends Player{
+
+  private boolean flashWave = false, boltBack = false, boltEnd = false, skyBolt = false, skyCatch = false, skyLand = false, casting = false, raze = false, regen = false, amped = false, reCast = false;
+  private int boltbackRange = 150, posX = 0, posY = 0, boltDir = 1, deltaX, deltaY, oppX, oppY;
+  private float initY = 0, changeY = 0, markX = 0, markY = 0, markMoveX = 0, markMoveY = 0;
+  
+  public Animation neutral, neutral2, left, right, down, up, attackLight, attackLight2, attackHeavy, attackHeavy2, flinch, flinch2, stunned, stunned2, waveCast, waveCast2, boltInit, boltInit2, boltFinal, boltFinal2, boltCast,
+  boltCast2, ultiCast, ultiCast2, ultiEffect, healEffect, fWave, fWave2, lsThrow, lsThrow2, lsCatch, lsCatch2, incindria, lsLand, lsLand2, shockMarker;
+  
+  private ArrayList<Projectile> waves, blades;
+  
+  private AudioPlayer shock, flash, healing, storm;
+  
+  private Entity opp;
+  
+  public Alta(Handler handler, float x, float y) { 
+    super (handler, x , y, Player.defaultWidth, Player.defaultHeight); 
+    
+    bounds.x = 64;
+    bounds.y = 88;
+    bounds.width = 48;
+    bounds.height = 56;
+    
+    healEffect = new Animation (80, Assets.heals);
+    
+    neutral = new Animation (1000, Assets.altN);
+    neutral2 = new Animation (1000,Assets.altN2);
+    left = new Animation (100, Assets.altML);
+    right = new Animation (100, Assets.altMR);
+    down = new Animation (100, Assets.altMD);
+    up = new Animation (100, Assets.altMU);
+    
+    attackLight = new Animation (100, Assets.altLA);
+    attackLight2 = new Animation (100, Assets.altLA2);
+    attackHeavy = new Animation (85, Assets.altHA);
+    attackHeavy2 = new Animation (85, Assets.altHA2);    
+    
+    waveCast = new Animation (120, Assets.altFW);
+    waveCast2 = new Animation (120, Assets.altFW2);
+    
+    lsThrow = new Animation (100, Assets.altLT);
+    lsThrow2 = new Animation (100, Assets.altLT2);
+    lsCatch = new Animation(130, Assets.altLC);
+    lsCatch2 = new Animation(130, Assets.altLC2);
+    lsLand = new Animation(100, Assets.altLL);
+    lsLand2 = new Animation(100, Assets.altLL2);
+    incindria = new Animation(75, Assets.altI);
+    shockMarker = new Animation(100, Assets.altMark);
+    
+    boltInit = new Animation (100, Assets.altBI);
+    boltInit2 = new Animation (100, Assets.altBI2);
+    boltFinal = new Animation (100, Assets.altBF);
+    boltFinal2 = new Animation (100, Assets.altBF2);
+    boltCast = new Animation(100, Assets.altBB);
+    boltCast2 = new Animation(100, Assets.altBB2);
+    
+    ultiCast = new Animation(100, Assets.altUC);
+    ultiCast2 = new Animation(100, Assets.altUC2);
+    ultiEffect = new Animation(100, Assets.tSurge);
+    
+    flinch = new Animation (100, Assets.altF);
+    flinch2 = new Animation (100, Assets.altF2);
+    stunned = new Animation (200, Assets.altS);
+    stunned2 = new Animation (200, Assets.altS2);
+    
+    fWave = new Animation(100, Assets.altWave);
+    fWave2 = new Animation(100, Assets.altWave2);
+    
+    shock = new AudioPlayer("/se/alta/Thunder.wav");
+    flash = new AudioPlayer("/se/alta/Wave.wav");
+    healing = new AudioPlayer("/se/heal.wav");
+    storm = new AudioPlayer("/se/alta/storm.wav");
+    
+    waves = new ArrayList<Projectile>();
+    blades = new ArrayList<Projectile>();
+    
+    width = 192;
+    height = 192;
+    
+    health = 405;
+    maxHealth = 405;
+    healthMod = health / 300;
+    speed = 4.6f;
+    maxSpeed = 4.6f;
+    
+    cooldowns[0] = 5;//4
+    cooldowns[1] = 7;//7
+    cooldowns[2] = 27;//27
+    cooldowns[3] = 1;//1
+    cooldowns[4] = 1;//1
+  }
+  
+  @Override
+  public void hurt(float amt){
+    health -= amt;
+    hit = true;
+    System.out.println("Player " + playerNum + " Alta." + health + " hp.");
+    if (health <= 0){
+      alive = false;
+      die();
+    }
+  }
+  
+      @Override 
+  public void heal(float amt){
+    if (health > maxHealth){
+     health = maxHealth;
+    }else{
+     health += amt; 
+    }
+  }
+ 
+  @Override
+  public void die(){
+    alive = false;
+    GameState.end = true;
+  }
+  
+  public void getInput(){
+  xMove = 0;
+  yMove = 0;
+  
+  if(playerNum == 1){
+    if (handler.getKeyManager().up)
+      yMove = -speed;
+    if (handler.getKeyManager().down)
+      yMove = speed;
+    if (handler.getKeyManager().left)
+      xMove = -speed;
+    if (handler.getKeyManager().right)
+      xMove = speed;   
+  } 
+  if(playerNum == 2){
+    if (handler.getKeyManager().up2)
+      yMove = -speed;
+    if (handler.getKeyManager().down2)
+      yMove = speed;
+    if (handler.getKeyManager().left2)
+      xMove = -speed;
+    if (handler.getKeyManager().right2)
+      xMove = speed; 
+  }
+}
+  
+  @Override 
+  public void tick(){
+    if(!skyCatch){
+      inBounds(); 
+    }
+    tickCooldowns(); 
+    
+    if(checkCooldowns(0)){
+      reCast = false;
+    }
+        
+    opp = getOpponent();
+    
+    oppX = (int)(opp.getX());
+    oppY = (int)(opp.getY());
+        
+    deltaX = Math.abs((int)(x) - oppX);
+    deltaY = Math.abs((int)(y) - oppY);
+    
+    if(deltaX > 500 || deltaY > 500){
+      heal(0.1f);
+      healing.loopSound();
+      regen = true;
+    }else{
+     healing.stopSound();
+     regen = false; 
+    }
+    
+    for(int i = 0; i < blades.size(); i++){
+        blades.get(i).tick();
+        changeY = Math.abs(blades.get(i).projY - initY);  
+        if(changeY >= 440){
+         skyCatch = true;
+         y = blades.get(i).projY;
+         x = blades.get(i).projX;
+            markX = x;
+            markY = initY;
+         blades.remove(i);
+        }
+      }
+
+    for(int i = 0; i < waves.size(); i++){
+        Rectangle pb = new Rectangle ();
+        waves.get(i).tick();
+        
+        pb.x = waves.get(i).projX + waves.get(i).inX;
+        pb.y = waves.get(i).projY + waves.get(i).inY;
+        pb.width = waves.get(i).projWidth;
+        pb.height = waves.get(i).projHeight;
+        
+     if(waves.get(i).speedX < 0){
+     waves.get(i).speedX += 10;
+     }else{
+        waves.get(i).speedX -= 10; 
+     }
+     if(Math.abs(waves.get(i).speedX) <= 0){
+      waves.remove(i);
+     }
+        
+        for (Entity e : handler.getWorld().getEntityManager().getEntities()){
+          if (e.equals(this))
+            continue;
+          if(e.getHitbox(0, 0).intersects(pb) && e.playerNum - 2 != playerNum){
+           e.hurt(8); 
+           e.timeStack += 2;
+           e.affectedBy = 2;
+              e.slowed(0.6f);          
+              amped = true;
+           if(waves.get(i).projBounds()){
+            waves.remove(waves.get(waves.size() - 1));           
+            }else{
+              
+            }
+           waves.remove(waves.get(waves.size() - 1));
+            return;
+          }
+        }   
+      }
+    
+        
+    //Animation
+    neutral.tick();
+    neutral2.tick();
+    left.tick();
+    right.tick();
+    up.tick();
+    down.tick();
+    flinch.tick();
+    flinch2.tick();
+    stunned.tick();
+    stunned2.tick();
+    healEffect.tick();
+
+    effectCheck(timeStack, affectedBy); 
+    
+    if(abilities[1] == 3 && amped){
+     amped = false;
+    }
+    
+    if (free && !stun){
+    //Moving
+      getInput();
+      move();
+      if (handler.getKeyManager().attackLight && playerNum == 1 && checkCooldowns(3) || handler.getKeyManager().attackLight2 && checkCooldowns(3) && playerNum == 2){
+        LA = true;
+        free = false;
+        abilities[3] = 0;
+      }
+      if (handler.getKeyManager().attackHeavy && playerNum == 1 && checkCooldowns(4) || handler.getKeyManager().attackHeavy2 && checkCooldowns(4) && playerNum == 2){
+        HA = true;
+        free = false;
+        abilities[4] = 0;
+      }
+      if (handler.getKeyManager().a1 && checkCooldowns(0) && playerNum == 1 && !reCast || handler.getKeyManager().a4 && checkCooldowns(0) && playerNum == 2 && !reCast){
+        skyBolt = true;  
+        free = false;
+        abilities[0] = 0;
+      }    
+      if (handler.getKeyManager().a1 && playerNum == 1 && reCast|| handler.getKeyManager().a4 && playerNum == 2 && reCast){
+        boltBack = true;
+        free = false;
+        abilities[0] = 0;
+        if(dir == 1){
+        posX = (int)(x - 40);
+        posY = (int)(y - 165);
+        }else if(dir == 2){
+        posX = (int)(x + bounds.x - 40);
+        posY = (int)(y - 165); 
+        }
+        boltDir = dir;
+      }    
+      if (handler.getKeyManager().a2 && checkCooldowns(1) && playerNum == 1 || handler.getKeyManager().a5 && checkCooldowns(1) && playerNum == 2){
+       flashWave = true;
+       free = false;
+       abilities[1] = 0;
+      }
+      if (handler.getKeyManager().a3 && checkCooldowns(2) && playerNum == 1 || handler.getKeyManager().a6 && checkCooldowns(2) && playerNum == 2){
+       raze = true;
+       storm.playSound();
+       free = false;
+       abilities[2] = 0;
+      }
+
+    }else if (!free){
+      
+    }
+    
+    if (LA){
+      LightAttack(); 
+    }
+    if (HA){
+      HeavyAttack();
+    }
+    if(skyBolt || boltBack){    
+     A1(); 
+    }else if(skyCatch){
+     lsCatch.tick();
+     lsCatch2.tick();
+     markX += markMoveX;
+     markY += markMoveY;
+     shockMarker.tick();
+     if (lsCatch.checkAnim()){
+       if(amped && rangedCheck((int)(markX + 70), (int)(markY + 140), 60, 30, 100, 0, 0)){
+         opp.timeStack += 4;
+         opp.slowed(0.5f); 
+         reCast =  true;
+       }else if(rangedCheck((int)(markX + 70), (int)(markY + 140), 60, 30, 80, 0, 0)){
+         reCast = true;
+       }
+      skyCatch = false;
+      skyLand = true;
+     }
+    }else if(skyLand){
+      lsLand.tick();
+      lsLand2.tick();
+      adjust(240, 330);
+      x = markX - 10;
+      y = markY - 140;
+     if (lsLand.checkAnim()){
+      y+=100;
+      markMoveX = 0;
+      markMoveY = 0;
+      reShape(240, 330, 192, 192);
+      skyLand = false;
+      free = true;
+     }
+    }
+    if(boltEnd){
+      casting = true;
+      boltFinal.tick();
+      boltFinal2.tick();
+      if (boltFinal.checkAnim()){
+        boltEnd = false;
+        free = true;
+        reCast = false;
+      }
+    } 
+    if (flashWave){
+      A2(); 
+    }
+    if (raze){
+     A3(); 
+    }
+    
+    if(hit && flinch.checkAnim()){
+      hit = false; 
+    }
+  }
+  
+  @Override
+  public void LightAttack(){
+    attackLight.tick();  
+    attackLight2.tick();
+    adjust(300, 192);    
+    free = false;
+    
+    if (attackLight.checkAnim()){
+      LA = false;
+      free = true;
+      reShape(300, 192, 192, 192);
+      hitCheck(80, 50, 30);
+    }
+    
+    if(stun || silenced){
+      LA = false;
+      attackLight.index = 0;
+      attackLight2.index = 0;
+      return;
+    }     
+  }
+  
+  @Override
+  public void HeavyAttack(){
+    attackHeavy.tick();  
+    attackHeavy2.tick();
+    adjust(300, 192);
+    free = false;
+    
+    if (attackHeavy.checkAnim()){
+      HA = false;
+      free = true;
+      reShape(300, 192, 192, 192);
+      hitCheck(60, 40, 75);
+    }
+    
+    if(stun || silenced){
+      HA = false;
+      attackHeavy.index = 0;
+      attackHeavy2.index = 0;
+      return;
+    }     
+  }
+  
+  @Override
+  public void A1(){
+    if(skyBolt){
+    lsThrow.tick();
+    lsThrow2 .tick();
+    adjust(300, 192);
+
+    if (lsThrow.checkAnim()){
+      if (dir == 1){
+        blades.add(new Projectile (-6, -20, (int)(x + bounds.x), (int)(y - 30), 0, 0, 0, 0, incindria, 2));
+      }else if (dir == 2){
+        blades.add(new Projectile (6, -20, (int)(x + bounds.x), (int)(y - 30), 0, 0, 0, 0, incindria, 2));
+      }
+      initY = y; 
+      reShape(300, 192, 192, 192);  
+      skyBolt = false;  
+    }
+    }else if(boltBack){
+      boltInit.tick();
+      boltInit2.tick();
+      if(boltInit.checkAnim()){
+      if(amped){
+        rangedCheck(posX + 20, posY + 260, 240, 60, 60, 2, 5);
+      }else if(!amped){
+        rangedCheck(posX + 20, posY + 260, 240, 60, 40, 0, 0);
+      }
+      
+      if(dir == 1){
+        x += boltbackRange;
+      }else if(dir == 2){
+       x -= boltbackRange; 
+      }
+      boltBack = false;
+      boltEnd = true;
+      }
+    }
+    if(stun || silenced){
+      skyBolt = false;
+      boltBack = false;
+      reCast = false;
+      lsThrow.index = 0;
+      lsThrow2.index = 0;
+      boltInit.index = 0;
+      boltInit2.index = 0;
+      return;
+    } 
+  }
+  
+  @Override
+  public void A2(){
+    free = false;
+
+    waveCast.tick();
+    waveCast2.tick();
+    flash.playSound();
+    
+    if(waveCast.index == 3){
+      if (dir == 1){
+        waves.add(new Projectile (-60, 0, (int)(x - 10), (int)(y + bounds.y * 0.4), 120, 120, 64, 64, fWave, 1));
+      }else if(dir == 2){
+        waves.add(new Projectile (60, 0, (int)(x + bounds.x), (int)(y + bounds.y * 0.4), 120, 120, 64, 64, fWave2, 2));   
+      }
+    }
+    
+    if (waveCast.checkAnim()){
+      flashWave = false;
+      free = true;
+    }
+    
+    if(stun || silenced){
+      flashWave = false;
+      waveCast.index = 0;
+      waveCast2.index = 0;
+      return;
+    } 
+  }
+  
+  @Override
+  public void A3(){
+   ultiCast.tick();
+   ultiCast2.tick();
+   
+   if(ultiCast.checkAnim()){
+ if(getOpponent().slowed = true){
+  getOpponent().slowed = false;
+  getOpponent().speed = getOpponent().maxSpeed;
+ }
+    raze = false;
+    free = true;
+   }
+   
+   if(stun || silenced){
+     raze = false;
+     ultiCast.index = 0;
+     ultiCast2.index = 0;
+     return;
+   } 
+  }
+  
+  @Override
+  public void render (Graphics g){  
+    
+    int pshift = 0;
+    
+    if (playerNum == 2){
+     pshift = 608; 
+    }
+    
+    if(abilities[0] == cooldowns[0]){
+      g.drawImage(Assets.altAbils[0], 396 + pshift, 782, 32, 32, null);
+    }else{
+      g.drawImage(Assets.altAbils[1], 396 + pshift, 782, 32, 32, null);
+    }
+    if(abilities[1] == cooldowns[1]){
+      g.drawImage(Assets.altAbils[4], 464 + pshift, 782, 32, 32, null);      
+    }else{
+      g.drawImage(Assets.altAbils[5], 464 + pshift, 782, 32, 32, null);
+    }
+    if(abilities[2] == cooldowns[2]){
+      g.drawImage(Assets.altAbils[2], 530 + pshift, 782, 32, 32, null);
+    }else{
+      g.drawImage(Assets.altAbils[3], 530 + pshift, 782, 32, 32, null);
+    } 
+    
+    if(silenced){
+     g.drawImage(Assets.silenced, 396 + pshift, 782, 32, 32, null);
+     g.drawImage(Assets.silenced, 464 + pshift, 782, 32, 32, null);
+     g.drawImage(Assets.silenced, 530 + pshift, 782, 32, 32, null);
+    }else{
+     
+    }
+    
+    if(regen){
+     g.drawImage(healEffect.getCurrentFrame(), (int)(x), (int)(y), null); 
+    }
+    
+//    g.setColor(Color.green);
+//    g.fillRect((int) (x + bounds.x * 3/4), (int)(y + bounds.y / 2), bounds.width * 2, bounds.height * 2); 
+//    g.setColor (Color.red);
+//    g.fillRect ((int) (x + bounds.x), (int)(y + bounds.y), bounds.width, bounds.height); 
+    
+    if(ultiCast.index >= 8 && raze){
+      ultiEffect.tick();
+        //  g.fillRect((int)(x - 255), (int)(y), 675, 325);
+      g.drawImage(ultiEffect.getCurrentFrame(), (int)(x - 275), (int)(y - 420), 750, 750, null);
+      g.drawImage (getCurrentAnimationFrame(),(int) (x),(int) (y) , width, height, null);
+      
+      Rectangle ar = new Rectangle ();
+      ar.width = 725;
+      ar.height = 325;      
+      
+      ar.x = (int)(x - 255); 
+      ar.y = (int)(y);
+      
+      for (Entity e : handler.getWorld().getEntityManager().getEntities()){
+        if (e.equals(this))
+          continue;
+        if(e.getHitbox(0, 0).intersects(ar)){
+         e.hurt(2);
+         e.slowed(0.15f);
+         e.slowed = true;
+        }else if(e.slowed && !e.getHitbox(0, 0).intersects(ar)){
+         e.speed = e.maxSpeed;
+         e.slowed = false;        
+        }
+        }
+    }else{
+      g.drawImage (getCurrentAnimationFrame(),(int) (x),(int) (y) , width, height, null);
+    }
+    
+    if(casting && !silenced){
+      boltCast.tick();
+      boltCast2.tick();
+      shock.playSound();
+     
+     if(boltDir == 1){
+       g.drawImage(boltCast2.getCurrentFrame(), posX, posY, null);
+     }else if(boltDir == 2){
+       g.drawImage(boltCast.getCurrentFrame(), posX, posY, null);
+     }
+     
+     if(boltCast.checkAnim()){
+       casting = false;
+     }
+    }
+    
+    for(int i = 0; i < waves.size(); i++){
+      waves.get(i).render(g);
+    }
+    for(int i = 0; i < blades.size(); i++){
+     blades.get(i).render(g);   
+    }
+    
+    if(skyCatch){
+     if(handler.getKeyManager().left && playerNum == 1 || handler.getKeyManager().left2 && playerNum == 2){
+      markMoveX = -10;
+     }else if(handler.getKeyManager().right && playerNum == 1  || handler.getKeyManager().right2 && playerNum == 2){
+      markMoveX = 10;
+     }else{
+      markMoveX = 0;
+     }
+     if(handler.getKeyManager().up && playerNum == 1  || handler.getKeyManager().up2 && playerNum == 2){
+      markMoveY = -10;
+     }else if(handler.getKeyManager().down && playerNum == 1  || handler.getKeyManager().down2 && playerNum == 2){
+      markMoveY = 10;
+     }else{
+      markMoveY = 0;
+     }
+     g.drawImage(shockMarker.getCurrentFrame(), (int)(markX), (int)(markY), null);
+    }
+    
+      Rectangle hb = getHitbox(0, 0);
+      Rectangle ar = new Rectangle ();
+      int arWidth = 0, arHeight = 0;
+      if(HA){
+        arWidth = 60;
+        arHeight = 40;
+      }
+      if (LA){
+        arWidth = 80;
+        arHeight =50;   
+      }
+      ar.width = arWidth;
+      ar.height = arHeight;
+      
+      if (dir == 1){
+        ar.x = hb.x - arWidth; // left
+        ar.y = hb.y + hb.height / 2 - arHeight / 2;
+      }else if (dir == 2){
+        ar.x = hb.x + hb.width; // right
+        ar.y = hb.y + hb.height / 2 - arHeight / 2;
+      }
+      
+    // g.fillRect(ar.x, ar.y, ar.width, ar.height);  
+  }
+  
+  private BufferedImage getCurrentAnimationFrame(){
+    
+    if(stun && dir == 1){
+      return stunned.getCurrentFrame();
+    }else if(stun && dir == 2){
+      return stunned2.getCurrentFrame();      
+    }
+    // attacks
+    else if (!attackLight.checkAnim() && LA && dir == 1){
+      return attackLight.getCurrentFrame();
+    }else if (!attackLight.checkAnim() && LA && dir == 2){
+      return attackLight2.getCurrentFrame();
+    }else if (!attackHeavy.checkAnim() && HA && dir == 1){
+      return attackHeavy.getCurrentFrame();
+    }else if (!attackHeavy.checkAnim() && HA && dir == 2){
+      return attackHeavy2.getCurrentFrame();
+    }
+    
+    //abilities
+    
+    else if(!waveCast.checkAnim() && flashWave && dir == 1){
+      return waveCast.getCurrentFrame();
+    }else if(!waveCast.checkAnim() && flashWave && dir == 2){
+      return waveCast2.getCurrentFrame();
+    }
+    
+    else if(!lsThrow.checkAnim() && skyBolt && dir == 1){
+      return lsThrow.getCurrentFrame(); 
+    }else if(!lsThrow2.checkAnim() && skyBolt && dir == 2){
+     return lsThrow2.getCurrentFrame(); 
+    }
+    
+    else if(!lsCatch.checkAnim() && skyCatch && dir == 1){
+      return lsCatch.getCurrentFrame();
+    }else if(!lsCatch.checkAnim() && skyCatch && dir == 2){
+      return lsCatch2.getCurrentFrame();
+    }
+    
+    else if(!lsLand.checkAnim() && skyLand && dir == 1){
+     return lsLand.getCurrentFrame();
+    }else if(!lsLand2.checkAnim() && skyLand && dir == 2){
+     return lsLand2.getCurrentFrame();
+    }
+
+    else if(!boltInit.checkAnim() && boltBack && dir == 1){
+      return boltInit.getCurrentFrame();
+    }else if(!boltInit2.checkAnim() && boltBack && dir == 2){
+      return boltInit2.getCurrentFrame();
+    }else if (boltEnd && dir == 1){
+      return boltFinal.getCurrentFrame();
+    }else if (boltEnd && dir == 2){
+      return boltFinal2.getCurrentFrame(); 
+    }
+    
+    else if(!ultiCast.checkAnim() && raze && dir == 1){
+     return ultiCast.getCurrentFrame(); 
+    }else if(!ultiCast.checkAnim() && raze && dir == 2){
+     return ultiCast2.getCurrentFrame(); 
+    }   
+    
+    else if(hit && dir == 1){
+      return flinch.getCurrentFrame();
+    }else if(hit && dir == 2){
+     return flinch2.getCurrentFrame(); 
+    }
+    
+    // movement
+    
+    else if (handler.getKeyManager().left && playerNum == 1 || handler.getKeyManager().left2 && playerNum == 2){
+      dir = 1;
+      return left.getCurrentFrame(); 
+    }else if (handler.getKeyManager().right && playerNum == 1 || handler.getKeyManager().right2 && playerNum == 2){
+      dir = 2;
+      return right.getCurrentFrame();
+    }else if (handler.getKeyManager().down && playerNum == 1 || handler.getKeyManager().down2 && playerNum == 2){
+      return down.getCurrentFrame();
+    }else if (handler.getKeyManager().up && playerNum == 1 || handler.getKeyManager().up2 && playerNum == 2){
+      return up.getCurrentFrame();
+    }else if (dir == 2){
+      return neutral2.getCurrentFrame(); 
+    }
+    else
+      return neutral.getCurrentFrame();
+  }
+
+  
+}

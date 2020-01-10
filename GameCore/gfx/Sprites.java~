@@ -1,0 +1,17 @@
+package GameCore.Display;
+
+import java.awt.BufferedImage;
+
+public class Sprites {
+  
+  private BufferedImage sheet;
+  
+  public SpriteSheet (BufferedImage sheet){
+    this.sheet = sheet; 
+  }
+  
+  public BufferedImage crop(int x, int y, int width, int height){
+    return sheet.getSubImage(x, y, width, height);
+  }
+  
+}
